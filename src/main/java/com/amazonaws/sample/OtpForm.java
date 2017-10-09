@@ -62,10 +62,17 @@ public class OtpForm {
         grid.add(otp_message, 0, 7, 2, 1);
         //Clicking will set answer and close window
         signUpButton.setOnAction(e -> {
-            helper.VerifyAccessCode(username, otpcode.getText());
-            System.out.println("User Verification Successful");
-            otp_message.setText("User Verification Successful");
-            window.close();
+            boolean success=helper.VerifyAccessCode(username, otpcode.getText());
+            if (success){
+                System.out.println("OTP validation is Successful");
+                otp_message.setText("OTP validation is Successful");
+                window.close();
+            }
+            else {
+                System.out.println("OTP validation has failed");
+                otp_message.setText("OTP validation has failed/Re-enter OTP code");
+            }
+
         });
         cancelButton.setOnAction(e -> {
             answer = false;
