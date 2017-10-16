@@ -28,7 +28,7 @@ import org.json.JSONObject;
 import java.util.Scanner;
 public class  Main extends Application{
     Stage window;
-    Button button;
+    Button signup_button;
     Button signin_button;
     Button forgot_pswd_button;
 
@@ -71,7 +71,7 @@ public class  Main extends Application{
         hbp.getChildren().addAll(password_label,Password);
         hbp.setSpacing(10);
 
-        button = new Button("Sign-Up");
+        signup_button = new Button("Sign-Up");
         vb.setPadding(new Insets(10, 50, 50, 50));
         vb.setSpacing(10);
         Label lbl = new Label("");
@@ -80,7 +80,7 @@ public class  Main extends Application{
         lbl.setTextFill(Color.web("#0076a3"));
         lbl.setFont(Font.font("Amble CN", FontWeight.BOLD, 24));
         vb.getChildren().add(lbl);
-        button.setOnAction(e -> {
+        signup_button.setOnAction(e -> {
             boolean result = ConfirmBox.display("re:Invent 2017 - Cognito Workshop", "Sign-Up Form");
             System.out.println(result);
         });
@@ -103,11 +103,15 @@ public class  Main extends Application{
             ListBuckets(credentails);
         });
         forgot_pswd_button = new Button("Forgot Password?");
-        button.setMaxWidth(142);
+        forgot_pswd_button.setOnAction(e -> {
+            boolean result = ForgotPassword.display("re:Invent 2017 - Cognito Workshop", "Forgot password Form");
+            System.out.println(result);
+        });
+        signup_button.setMaxWidth(142);
         signin_button.setMaxWidth(142);
         forgot_pswd_button.setMaxWidth(142);
 /* StackPane layout = new StackPane(); */
-        vb.getChildren().addAll(hbu, hbp,signin_button,button, forgot_pswd_button, auth_message);
+        vb.getChildren().addAll(hbu, hbp,signin_button,signup_button, forgot_pswd_button, auth_message);
         vb.setAlignment(Pos.CENTER);
         Scene scene = new Scene(vb, 400, 500);
         window.setScene(scene);
