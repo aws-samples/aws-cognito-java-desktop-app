@@ -33,9 +33,9 @@ import java.util.List;
  */
 class CognitoHelper {
 
-    private String POOL_ID= "us-east-1_lmS1xjbzQ";
-    private String CLIENTAPP_ID="4ko7a9sc3tto20ogdt67pqtgqq";
-    private String FED_POOL_ID="us-east-1:c23e0811-e542-4b63-b2c7-2e8d460afa14";
+    private String POOL_ID= "";
+    private String CLIENTAPP_ID="";
+    private String FED_POOL_ID="";
 
     /**
      * Sign up the user to the user pool
