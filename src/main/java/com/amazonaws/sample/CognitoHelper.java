@@ -17,7 +17,6 @@ package com.amazonaws.sample;
  *  limitations under the License.
  */
 
-
 import com.amazonaws.services.cognitoidentity.AmazonCognitoIdentity;
 import com.amazonaws.services.cognitoidentity.AmazonCognitoIdentityClientBuilder;
 import com.amazonaws.services.cognitoidentity.model.*;
@@ -34,9 +33,9 @@ import java.util.List;
  */
 class CognitoHelper {
 
-    private String POOL_ID = "";
-    private String CLIENTAPP_ID = "";
-    private String FED_POOL_ID = "";
+    private String POOL_ID= "us-east-1_lmS1xjbzQ";
+    private String CLIENTAPP_ID="4ko7a9sc3tto20ogdt67pqtgqq";
+    private String FED_POOL_ID="us-east-1:c23e0811-e542-4b63-b2c7-2e8d460afa14";
 
     /**
      * Sign up the user to the user pool
@@ -67,11 +66,9 @@ class CognitoHelper {
         attributeType1.setValue(email);
         list.add(attributeType1);
 
-
         signUpRequest.setUserAttributes(list);
 
         try {
-
             SignUpResult result = cognitoIdentityProvider.signUp(signUpRequest);
             System.out.println(result);
         } catch (Exception e) {
@@ -79,7 +76,6 @@ class CognitoHelper {
             return false;
         }
         return true;
-
     }
 
     /**
@@ -95,6 +91,7 @@ class CognitoHelper {
         confirmSignUpRequest.setUsername(username);
         confirmSignUpRequest.setConfirmationCode(code);
         confirmSignUpRequest.setClientId(CLIENTAPP_ID);
+
         try {
             ConfirmSignUpResult confirmSignUpResult = cognitoIdentityProvider.confirmSignUp(confirmSignUpRequest);
             System.out.println(confirmSignUpResult.toString());
@@ -102,10 +99,8 @@ class CognitoHelper {
             System.out.println(ex);
             return false;
         }
-
         return true;
     }
-
 
     /**
      * Helper method to validate the user
@@ -127,20 +122,61 @@ class CognitoHelper {
      * @return returns the credentials based on the access token returned from the user pool.
      */
     Credentials GetCredentials(String idprovider, String id) {
-
-
         AmazonCognitoIdentity provider = AmazonCognitoIdentityClientBuilder.defaultClient();
         GetIdRequest idrequest = new GetIdRequest();
         idrequest.setIdentityPoolId(FED_POOL_ID);
         idrequest.addLoginsEntry(idprovider, id);
         GetIdResult idResult = provider.getId(idrequest);
+
         GetCredentialsForIdentityRequest request = new GetCredentialsForIdentityRequest();
         request.setIdentityId(idResult.getIdentityId());
         request.addLoginsEntry(idprovider, id);
 
         GetCredentialsForIdentityResult result = provider.getCredentialsForIdentity(request);
         return result.getCredentials();
-
     }
 
+    /**
+     * Start reset password procedure by sending reset code
+     *
+     * @param username user to be reset
+     * @return returns code delivery details
+     */
+    String ResetPassword(String username) {
+        AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder.defaultClient();
+        ForgotPasswordRequest forgotPasswordRequest = new ForgotPasswordRequest();
+        forgotPasswordRequest.setUsername(username);
+        forgotPasswordRequest.setClientId(CLIENTAPP_ID);
+        ForgotPasswordResult forgotPasswordResult = new ForgotPasswordResult();
+        try {
+            forgotPasswordResult = cognitoIdentityProvider.forgotPassword(forgotPasswordRequest);
+        } catch (Exception e) {
+            // handle exception here
+        }
+        return forgotPasswordResult.toString();
+    }
+
+    /**
+     * complete reset password procedure by confirming the reset code
+     *
+     * @param username user to be reset
+     * @param newpw new password of aforementioned user
+     * @param code code sent for password reset from the ResetPassword() method above
+     * @return returns code delivery details
+     */
+    String UpdatePassword(String username, String newpw, String code) {
+        AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder.defaultClient();
+        ConfirmForgotPasswordRequest confirmPasswordRequest = new ConfirmForgotPasswordRequest();
+        confirmPasswordRequest.setUsername(username);
+        confirmPasswordRequest.setPassword(newpw);
+        confirmPasswordRequest.setConfirmationCode(code);
+        confirmPasswordRequest.setClientId(CLIENTAPP_ID);
+        ConfirmForgotPasswordResult confirmPasswordResult = new ConfirmForgotPasswordResult();
+        try {
+            confirmPasswordResult = cognitoIdentityProvider.confirmForgotPassword(confirmPasswordRequest);
+        } catch (Exception e) {
+            // handle exception here
+        }
+        return confirmPasswordResult.toString();
+    }
 }

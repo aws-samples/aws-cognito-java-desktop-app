@@ -17,7 +17,6 @@ package com.amazonaws.sample;
  *  limitations under the License.
  */
 
-
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.services.cognitoidentity.model.Credentials;
@@ -32,59 +31,32 @@ public class MainConsole {
     public static void main(String[] args) {
         CognitoHelper helper = new CognitoHelper();
 
-
-        System.out.println("Welcome to the Cognito Sample. Please enter your choice ( 1 or 2).\n" +
+        System.out.println("Welcome to the Cognito Sample. Please enter your choice (1 or 2).\n" +
                 "1. Add a new user\n" +
-                "2. Authenticate a user and display its Buckets\n" +
+                "2. Authenticate a user and display its buckets\n" +
+                "3. Reset password" +
                 "");
         int choice = 0;
         Scanner scanner = new Scanner(System.in);
         try {
             choice = Integer.parseInt(scanner.nextLine());
         } catch (NumberFormatException exp) {
-            System.out.println("Please enter a choice between 1 and 2.");
+            System.out.println("Please enter a choice (1, 2, 3).");
             System.exit(1);
         }
         switch (choice) {
             case 1:
-                Createuser(helper);
+                CreateUser(helper);
                 break;
             case 2:
-                Validateuser(helper);
+                ValidateUser(helper);
+                break;
+            case 3:
+                ResetPassword(helper);
                 break;
             default:
-                System.out.println("Valid Choices are 1 or 2");
+                System.out.println("Valid choices are 1, 2, 3.");
         }
-
-    }
-
-
-    /**
-     * This method validates the user by entering username and password
-     *
-     * @param helper CognitoHelper class for performing validations
-     */
-    private static void Validateuser(CognitoHelper helper) {
-        System.out.println("Please enter the username");
-        Scanner scanner = new Scanner(System.in);
-        String username = scanner.nextLine();
-
-        System.out.println("Please enter the password");
-        String password = scanner.nextLine();
-
-        String result = helper.ValidateUser(username, password);
-        if (result != null) {
-            System.out.println("User is authenticated:" + result);
-        } else {
-            System.out.println("Username / Password is invalid");
-        }
-
-        JSONObject payload = CognitoJWTParser.getPayload(result);
-        String provider = payload.get("iss").toString().replace("https://", "");
-
-
-        Credentials credentails = helper.GetCredentials(provider, result);
-        ListBuckets(credentails);
     }
 
     /**
@@ -92,7 +64,7 @@ public class MainConsole {
      *
      * @param helper CognitoHelper class for performing validations
      */
-    private static void Createuser(CognitoHelper helper) {
+    private static void CreateUser(CognitoHelper helper) {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Please enter a username: ");
@@ -107,27 +79,90 @@ public class MainConsole {
         System.out.println("Please enter a phone number (+11234567890): ");
         String phonenumber = scanner.nextLine();
 
-
         boolean success = helper.SignUpUser(username, password, email, phonenumber);
         if (success) {
-            System.out.println("User Added");
+            System.out.println("User added.");
             System.out.println("Enter your validation code on phone: ");
 
             String code = scanner.nextLine();
             helper.VerifyAccessCode(username, code);
-            System.out.println("User Verification Successful");
+            System.out.println("User verification succeeded.");
         } else {
-            System.out.println("User Creation Failed");
+            System.out.println("User creation failed.");
         }
     }
 
     /**
-     * List the buckets based on credentails provided.
+     * This method validates the user by entering username and password
      *
-     * @param credentails AWS credentials which are to be used to list the buckets.
+     * @param helper CognitoHelper class for performing validations
      */
-    private static void ListBuckets(Credentials credentails) {
-        BasicSessionCredentials awsCreds = new BasicSessionCredentials(credentails.getAccessKeyId(), credentails.getSecretKey(), credentails.getSessionToken());
+    private static void ValidateUser(CognitoHelper helper) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Please enter the username: ");
+        String username = scanner.nextLine();
+
+        System.out.println("Please enter the password: ");
+        String password = scanner.nextLine();
+
+        String result = helper.ValidateUser(username, password);
+        if (result != null) {
+            System.out.println("User is authenticated: " + result);
+        } else {
+            System.out.println("Username/password is invalid.");
+        }
+
+        JSONObject payload = CognitoJWTParser.getPayload(result);
+        String provider = payload.get("iss").toString().replace("https://", "");
+
+        Credentials credentials = helper.GetCredentials(provider, result);
+        ListBuckets(credentials);
+    }
+
+
+    /**
+     * This method allows a user to reset his/her password
+     *
+     * @param helper CognitoHelper class for performing validations
+     */
+    private static void ResetPassword(CognitoHelper helper) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Please enter the username: ");
+        String username = scanner.nextLine();
+
+        String result = helper.ResetPassword(username);
+        if (result != null) {
+            System.out.println("Reset password code sent: " + result);
+        } else {
+            System.out.println("Reset password procedure failed.");
+            System.exit(1);
+        }
+
+        System.out.println("Please enter the reset code: ");
+        String code = scanner.nextLine();
+
+        System.out.println("Please enter a new password: ");
+        String password = scanner.nextLine();
+
+        String confirmation = helper.UpdatePassword(username, password, code);
+        if (confirmation != null) {
+            System.out.println("Reset password confirmed: " + confirmation);
+        } else {
+            System.out.println("Reset password procedure failed.");
+            System.exit(1);
+        }
+
+    }
+
+    /**
+     * List the buckets based on credentials provided.
+     *
+     * @param credentials AWS credentials which are to be used to list the buckets.
+     */
+    private static void ListBuckets(Credentials credentials) {
+        BasicSessionCredentials awsCreds = new BasicSessionCredentials(credentials.getAccessKeyId(), credentials.getSecretKey(), credentials.getSessionToken());
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
                 .build();
