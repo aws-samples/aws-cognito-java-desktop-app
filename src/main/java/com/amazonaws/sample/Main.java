@@ -1,46 +1,34 @@
 package com.amazonaws.sample;
-import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.stage.Stage;
-import javafx.scene.control.TextField;
+
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.services.cognitoidentity.model.Credentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
+import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.stage.Stage;
 import org.json.JSONObject;
 
-import java.util.Scanner;
+
 public class  Main extends Application{
-    Stage window;
-    Button signup_button;
-    Button signin_button;
-    Button forgot_pswd_button;
 
     public static void main(String[] args) {
         launch(args);
     }
-    CognitoHelper helper = new CognitoHelper();
-    /**
-     * This method validates the user by entering username and password
-     *
-     * @param helper CognitoHelper class for performing validations
-     */
+
 
     private static void ListBuckets(Credentials credentails) {
         BasicSessionCredentials awsCreds = new BasicSessionCredentials(credentails.getAccessKeyId(), credentails.getSecretKey(), credentails.getSessionToken());
@@ -53,6 +41,14 @@ public class  Main extends Application{
     }
     @Override
     public void start(Stage primaryStage) {
+
+        CognitoHelper helper = new CognitoHelper();
+        Stage window;
+        Button signup_button;
+        Button signin_button;
+        Button forgot_pswd_button;
+
+
         window = primaryStage;
         window.setTitle("re:Invent 2017 - Cognito Workshop");
         VBox vb = new VBox();
@@ -75,7 +71,7 @@ public class  Main extends Application{
         vb.setPadding(new Insets(10, 50, 50, 50));
         vb.setSpacing(10);
         Label lbl = new Label("");
-        Image image = new Image(getClass().getResourceAsStream("reinvent.png"));
+        Image image = new Image(getClass().getClassLoader().getResourceAsStream("reinvent.png"));
         lbl.setGraphic(new ImageView(image));
         lbl.setTextFill(Color.web("#0076a3"));
         lbl.setFont(Font.font("Amble CN", FontWeight.BOLD, 24));
@@ -110,9 +106,21 @@ public class  Main extends Application{
         signup_button.setMaxWidth(142);
         signin_button.setMaxWidth(142);
         forgot_pswd_button.setMaxWidth(142);
+
+
+        Hyperlink hl = new Hyperlink("Cognito Hosted UI");
+        hl.setTooltip(new Tooltip(helper.GetHostedSignInURL()));
+        hl.setOnAction((ActionEvent event) -> {
+            Hyperlink h = (Hyperlink) event.getTarget();
+            String s = h.getTooltip().getText();
+            this.getHostServices().showDocument(s);
+            event.consume();
+        });
 /* StackPane layout = new StackPane(); */
-        vb.getChildren().addAll(hbu, hbp,signin_button,signup_button, forgot_pswd_button, auth_message);
+        vb.getChildren().addAll(hbu, hbp, signin_button, signup_button, forgot_pswd_button, auth_message, hl);
         vb.setAlignment(Pos.CENTER);
+
+
         Scene scene = new Scene(vb, 400, 500);
         window.setScene(scene);
         window.show();
