@@ -164,7 +164,7 @@ class AuthenticationHelper {
             if (ChallengeNameType.PASSWORD_VERIFIER.toString().equals(initiateAuthResult.getChallengeName())) {
                 RespondToAuthChallengeRequest challengeRequest = userSrpAuthRequest(initiateAuthResult, password);
                 RespondToAuthChallengeResult result = cognitoIdentityProvider.respondToAuthChallenge(challengeRequest);
-                System.out.println(result);
+                //System.out.println(result);
                 System.out.println(CognitoJWTParser.getPayload(result.getAuthenticationResult().getIdToken()));
                 authresult = result.getAuthenticationResult().getIdToken();
             }

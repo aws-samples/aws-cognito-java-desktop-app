@@ -30,14 +30,35 @@ public class  Main extends Application{
     }
 
 
-    private static void ListBuckets(Credentials credentails) {
+    private static void ListBuckets(Credentials credentails, Stage primarystage) {
         BasicSessionCredentials awsCreds = new BasicSessionCredentials(credentails.getAccessKeyId(), credentails.getSecretKey(), credentails.getSessionToken());
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
                 .build();
+        StringBuilder bucketslist = new StringBuilder();
+
+        bucketslist.append("===========Credentials Details.=========== \n");
+
+        bucketslist.append("Accesskey = " + credentails.getAccessKeyId() + "\n");
+        bucketslist.append("Secret = " + credentails.getSecretKey() + "\n");
+        bucketslist.append("SessionToken = " + credentails.getSessionToken() + "\n");
+
+        bucketslist.append("============Bucket Lists===========\n");
+
+
+
         for (Bucket bucket : s3Client.listBuckets()) {
+            bucketslist.append(bucket.getName());
+            bucketslist.append("\n");
+
             System.out.println(" - " + bucket.getName());
         }
+
+
+        ShowMessage.display("Cognito -  Returned Credentials", bucketslist.toString());
+
+
+
     }
     @Override
     public void start(Stage primaryStage) {
@@ -87,16 +108,19 @@ public class  Main extends Application{
             if (result != null) {
                 System.out.println("User is authenticated:" + result);
                 auth_message.setText("User is authenticated");
+                JSONObject payload = CognitoJWTParser.getPayload(result);
+                String provider = payload.get("iss").toString().replace("https://", "");
+
+
+                Credentials credentails = helper.GetCredentials(provider, result);
+
+
+                ListBuckets(credentails, primaryStage);
             } else {
                 System.out.println("Username / Password is invalid");
                 auth_message.setText("Username / Password is invalid");
             }
-            JSONObject payload = CognitoJWTParser.getPayload(result);
-            String provider = payload.get("iss").toString().replace("https://", "");
 
-
-            Credentials credentails = helper.GetCredentials(provider, result);
-            ListBuckets(credentails);
         });
         forgot_pswd_button = new Button("Forgot Password?");
         forgot_pswd_button.setOnAction(e -> {
