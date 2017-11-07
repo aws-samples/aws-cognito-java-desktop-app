@@ -19,11 +19,12 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.control.TextField;
-public class PIN_validation {
+public class ResetPassword {
     static boolean answer;
 
-    public static boolean display(String title, String message) {
+    public static boolean display(String title, String message, String username) {
         CognitoHelper helper = new CognitoHelper();
+
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
@@ -36,35 +37,38 @@ public class PIN_validation {
         window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle(title);
         window.setMinWidth(250);
-//        Label label = new Label();
-//        label.setText(message);
         Label scenetitle = new Label();
         scenetitle.setText(message);
-        scenetitle.setFont(Font.font ("Tahoma", FontWeight.NORMAL, 30));
+
         grid.add(scenetitle, 0, 0, 2, 1);
+
         // PIN field
-        Label PIN_label = new Label("PIN Code:");
-        grid.add(PIN_label, 0, 1);
-        TextField PIN_field = new TextField();
-        grid.add(PIN_field, 1, 1);
+        Label lblusername = new Label("Username:");
+        grid.add(lblusername, 0, 1);
+        TextField txtusername = new TextField();
+        txtusername.setText(username);
+        grid.add(txtusername, 1, 1);
+
+
+        // PIN field
+        Label lblpincode = new Label("PIN Code:");
+        grid.add(lblpincode, 0, 2);
+        TextField txtpincode = new TextField();
+        grid.add(txtpincode, 1, 2);
 
         // password field
-        Label password_label = new Label("Password:");
-        grid.add(password_label, 0, 2);
-        TextField Password = new PasswordField();
-        grid.add(Password, 1, 2);
+        Label lblpassword = new Label("Password:");
+        grid.add(lblpassword, 0, 3);
+        TextField txtpassword = new PasswordField();
+        grid.add(txtpassword, 1, 3);
 
-        // Repeat password field
-        Label passwordr_label = new Label("Repeat:");
-        grid.add(passwordr_label, 0, 3);
-        TextField Passwordr = new PasswordField();
-        grid.add(Passwordr, 1, 3);
+
 
         //Create signup button
-        Button signinButton = new Button("Sign-In");
+        Button resetPassword = new Button("Reset Password");
         HBox suBtn = new HBox(10);
         //       suBtn.setAlignment(Pos.BOTTOM_LEFT);
-        suBtn.getChildren().add(signinButton);
+        suBtn.getChildren().add(resetPassword);
         suBtn.setMaxWidth(190);
         grid.add(suBtn,0,6);
         // Create cancel button
@@ -72,31 +76,33 @@ public class PIN_validation {
         HBox clBtn = new HBox(10);
         clBtn.setAlignment(Pos.BOTTOM_RIGHT);
         clBtn.getChildren().add(cancelButton);
-        clBtn.setMaxWidth(190);
-        grid.add(clBtn,1,6);
-        Label usercreation_message = new Label();
-        usercreation_message.setFont(Font.font ("Tahoma", FontWeight.NORMAL, 30));
-        grid.add(usercreation_message, 0, 7, 2, 1);
+        suBtn.setMaxWidth(190);
+        grid.add(clBtn,1,6 );
+        Label lblmessage = new Label();
+
+        grid.add(lblmessage, 0, 7, 2, 1);
         //Clicking will set answer and close window
-        signinButton.setOnAction(e -> {
-            answer = false;
-            window.close();
+        resetPassword.setOnAction(e -> {
+            answer = true;
+            try {
+                helper.UpdatePassword(txtusername.getText(), txtpassword.getText(), txtpincode.getText());
+                lblmessage.setText("Password reset successfully!");
+            }catch (Exception exp)
+            {
+                System.out.println(exp);
+                answer=false;
+
+            }
+
         });
         cancelButton.setOnAction(e -> {
             answer = false;
             window.close();
         });
 
-        VBox layout = new VBox(10);
-
-        //Add buttons
-//        layout.getChildren().addAll(label);
-//        layout.getChildren().addAll(signUpButton, cancelButton);
-//        Scene scene = new Scene(layout, 400, 500);
         window.setScene(scene);
         window.showAndWait();
 
-        //Make sure to return answer
         return answer;
     }
 

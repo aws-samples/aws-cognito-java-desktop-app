@@ -13,9 +13,9 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class ShowMessage {
+ class ShowMessage {
 
-    public static void display(String title, String message) {
+     static void display(String title, String message) {
 
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
@@ -44,7 +44,6 @@ public class ShowMessage {
             window.close();
         });
 
-        VBox layout = new VBox(10);
 
         window.setScene(scene);
         window.showAndWait();

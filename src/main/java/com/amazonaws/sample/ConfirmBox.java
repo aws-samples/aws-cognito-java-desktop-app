@@ -7,8 +7,6 @@ import javafx.scene.layout.*;
 import javafx.scene.control.*;
 import javafx.geometry.*;
 
-import java.util.Scanner;
-
 public class ConfirmBox {
     //Create variable
     static boolean answer;
@@ -83,11 +81,9 @@ public class ConfirmBox {
         signUpButton.setOnAction(e -> {
             boolean success = helper.SignUpUser(Username.getText(), Password.getText(), email.getText(), phno.getText());
             if (success) {
-                System.out.println("User Added");
-                usercreation_message.setText("User Added");
+
                 System.out.println("Enter your validation code on phone: ");
-                boolean answer = OtpForm.display("re:Invent 2017 - Cognito Workshop", "Otp Form",Username.getText());
-                System.out.println(answer);
+                ConfirmUser.display("re:Invent 2017 - Cognito Workshop", "Confirm User",Username.getText());
             } else {
                 System.out.println("User Creation Failed");
                 usercreation_message.setText("User Creation Failed");

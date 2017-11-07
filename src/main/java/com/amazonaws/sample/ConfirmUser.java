@@ -13,11 +13,12 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-public class OtpForm {
+public class ConfirmUser {
     //Create variable
-    static boolean answer;
 
-    public static boolean display(String title, String message, String username) {
+
+     static boolean display(String title, String message, String username) {
+        boolean answer=false;
         CognitoHelper helper = new CognitoHelper();
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
@@ -31,11 +32,10 @@ public class OtpForm {
         window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle(title);
         window.setMinWidth(250);
-//        Label label = new Label();
-//        label.setText(message);
+
         Label scenetitle = new Label();
         scenetitle.setText(message);
-        scenetitle.setFont(Font.font ("Tahoma", FontWeight.NORMAL, 30));
+
         grid.add(scenetitle, 0, 0, 2, 1);
         // Username field
         Label otpcode_label = new Label("Enter OTP Code:");
@@ -58,7 +58,7 @@ public class OtpForm {
         clBtn.setMaxWidth(190);
         grid.add(clBtn,1,6);
         Label otp_message = new Label();
-        otp_message.setFont(Font.font ("Tahoma", FontWeight.NORMAL, 30));
+
         grid.add(otp_message, 0, 7, 2, 1);
         //Clicking will set answer and close window
         signUpButton.setOnAction(e -> {
@@ -66,7 +66,7 @@ public class OtpForm {
             if (success){
                 System.out.println("OTP validation is Successful");
                 otp_message.setText("OTP validation is Successful");
-                window.close();
+
             }
             else {
                 System.out.println("OTP validation has failed");
@@ -75,20 +75,13 @@ public class OtpForm {
 
         });
         cancelButton.setOnAction(e -> {
-            answer = false;
+
             window.close();
         });
 
-        VBox layout = new VBox(10);
-
-        //Add buttons
-//        layout.getChildren().addAll(label);
-//        layout.getChildren().addAll(signUpButton, cancelButton);
-//        Scene scene = new Scene(layout, 400, 500);
         window.setScene(scene);
         window.showAndWait();
 
-        //Make sure to return answer
         return answer;
     }
 

@@ -124,7 +124,7 @@ public class  Main extends Application{
         });
         forgot_pswd_button = new Button("Forgot Password?");
         forgot_pswd_button.setOnAction(e -> {
-            boolean result = ForgotPassword.display("re:Invent 2017 - Cognito Workshop", "Forgot password Form");
+            boolean result = ForgotPassword.display("re:Invent 2017 - Cognito Workshop", "Forgot password");
             System.out.println(result);
         });
         signup_button.setMaxWidth(142);

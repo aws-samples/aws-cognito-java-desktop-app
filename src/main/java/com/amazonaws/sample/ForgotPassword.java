@@ -7,9 +7,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 public class ForgotPassword {
@@ -34,44 +31,52 @@ public class ForgotPassword {
 //        label.setText(message);
         Label scenetitle = new Label();
         scenetitle.setText(message);
-        scenetitle.setFont(Font.font ("Tahoma", FontWeight.NORMAL, 30));
+
         grid.add(scenetitle, 0, 0, 2, 1);
         // email field
-        Label email_label = new Label("Enter email address:");
+        Label email_label = new Label("Username:");
         grid.add(email_label, 0, 1);
-        TextField emailcode = new TextField();
-        grid.add(emailcode, 1, 1);
+        TextField txtusername = new TextField();
+        grid.add(txtusername, 1, 1);
 
         //Create password reset link button
-        Button passwordResetLinkButton = new Button(" Send PIN Code");
+        Button passwordResetLinkButton = new Button("Reset Request");
         HBox suBtn = new HBox(10);
         suBtn.setAlignment(Pos.CENTER);
         suBtn.getChildren().add(passwordResetLinkButton);
         suBtn.setMaxWidth(300);
         grid.add(suBtn,0,6);
-        // Create cancel button
-        Button cancelButton = new Button("        Cancel        ");
-        HBox clBtn = new HBox(10);
-        clBtn.setAlignment(Pos.CENTER);
-        clBtn.getChildren().add(cancelButton);
-        clBtn.setMaxWidth(300);
-        grid.add(clBtn,0,8);
-        // Create cancel button
-        Button codeButton = new Button("I have PIN Code");
+
+
+        Button codeButton = new Button("Have reset code?");
         HBox codeBtn = new HBox(10);
         codeBtn.setAlignment(Pos.CENTER);
         codeBtn.getChildren().add(codeButton);
         codeBtn.setMaxWidth(300);
-        grid.add(codeBtn,0,7);
+        grid.add(codeBtn,1,6);
 
-        Label passwordreset_message = new Label();
-        passwordreset_message.setFont(Font.font ("Tahoma", FontWeight.NORMAL, 30));
-        grid.add(passwordreset_message, 0, 7, 2, 1);
+
+
+        // Create cancel button
+        Button cancelButton = new Button("Cancel");
+        HBox clBtn = new HBox(10);
+        clBtn.setAlignment(Pos.CENTER);
+        clBtn.getChildren().add(cancelButton);
+        clBtn.setMaxWidth(300);
+        grid.add(clBtn,0,7, 2,1);
+
         //Clicking will set answer and close window
         passwordResetLinkButton.setOnAction(e -> {
 
-            System.out.println(emailcode.getText());
-            window.close();
+            System.out.println(txtusername.getText());
+            helper.ResetPassword(txtusername.getText());
+            boolean answer = ResetPassword.display("re:Invent 2017 - Cognito Workshop", "Reset Password",txtusername.getText());
+            if (answer) {
+                System.out.println("Password reset successful");
+            }else
+            {
+                System.out.println("Password reset failed");
+            }
 
         });
         cancelButton.setOnAction(e -> {
@@ -79,15 +84,18 @@ public class ForgotPassword {
             window.close();
         });
         codeButton.setOnAction(e -> {
-            boolean answer = PIN_validation.display("re:Invent 2017 - Cognito Workshop", "Reset Password");
-            window.close();
-        });
-        VBox layout = new VBox(10);
+            boolean answer = ResetPassword.display("re:Invent 2017 - Cognito Workshop", "Reset Password",txtusername.getText());
+            if (answer) {
+                System.out.println("Password reset successful");
+            }else
+            {
+                System.out.println("Password reset failed");
+            }
 
-        //Add buttons
-//        layout.getChildren().addAll(label);
-//        layout.getChildren().addAll(signUpButton, cancelButton);
-//        Scene scene = new Scene(layout, 400, 500);
+        });
+
+
+
         window.setScene(scene);
         window.showAndWait();
 
