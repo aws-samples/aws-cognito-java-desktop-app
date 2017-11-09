@@ -1,11 +1,6 @@
-package com.amazonaws.sample;
+package com.amazonaws.sample.cognitoui;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.services.cognitoidentity.model.Credentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.Bucket;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -23,41 +18,19 @@ import javafx.stage.Stage;
 import org.json.JSONObject;
 
 
-public class  Main extends Application{
+public class MainForm extends Application {
 
     public static void main(String[] args) {
         launch(args);
     }
 
 
-    private static void ListBuckets(Credentials credentails, Stage primarystage) {
-        BasicSessionCredentials awsCreds = new BasicSessionCredentials(credentails.getAccessKeyId(), credentails.getSecretKey(), credentails.getSessionToken());
-        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .build();
-        StringBuilder bucketslist = new StringBuilder();
+    static void ShowUserBuckets(Credentials credentails) {
 
-        bucketslist.append("===========Credentials Details.=========== \n");
+        CognitoHelper helper = new CognitoHelper();
+        String message = helper.ListBucketsForUser(credentails);
 
-        bucketslist.append("Accesskey = " + credentails.getAccessKeyId() + "\n");
-        bucketslist.append("Secret = " + credentails.getSecretKey() + "\n");
-        bucketslist.append("SessionToken = " + credentails.getSessionToken() + "\n");
-
-        bucketslist.append("============Bucket Lists===========\n");
-
-
-
-        for (Bucket bucket : s3Client.listBuckets()) {
-            bucketslist.append(bucket.getName());
-            bucketslist.append("\n");
-
-            System.out.println(" - " + bucket.getName());
-        }
-
-
-        ShowMessage.display("Cognito -  Returned Credentials", bucketslist.toString());
-
-
+        BucketListForm.display("Cognito -  Returned Credentials", message);
 
     }
     @Override
@@ -111,11 +84,10 @@ public class  Main extends Application{
                 JSONObject payload = CognitoJWTParser.getPayload(result);
                 String provider = payload.get("iss").toString().replace("https://", "");
 
-
                 Credentials credentails = helper.GetCredentials(provider, result);
 
 
-                ListBuckets(credentails, primaryStage);
+                ShowUserBuckets(credentails);
             } else {
                 System.out.println("Username / Password is invalid");
                 auth_message.setText("Username / Password is invalid");
@@ -135,10 +107,12 @@ public class  Main extends Application{
         Hyperlink hl = new Hyperlink("Cognito Hosted UI");
         hl.setTooltip(new Tooltip(helper.GetHostedSignInURL()));
         hl.setOnAction((ActionEvent event) -> {
-            Hyperlink h = (Hyperlink) event.getTarget();
-            String s = h.getTooltip().getText();
-            this.getHostServices().showDocument(s);
-            event.consume();
+//            Hyperlink h = (Hyperlink) event.getTarget();
+//            String s = h.getTooltip().getText();
+//            this.getHostServices().showDocument(s);
+//            event.consume();
+            HostedUI.display("re:Invent 2017 - Cognito Workshop", helper.GetHostedSignInURL());
+
         });
 /* StackPane layout = new StackPane(); */
         vb.getChildren().addAll(hbu, hbp, signin_button, signup_button, forgot_pswd_button, auth_message, hl);

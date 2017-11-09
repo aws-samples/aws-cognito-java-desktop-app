@@ -1,4 +1,4 @@
-package com.amazonaws.sample;
+package com.amazonaws.sample.cognitoui;
 
 /*
  *  Copyright 2013-2016 Amazon.com,
@@ -17,18 +17,23 @@ package com.amazonaws.sample;
  *  limitations under the License.
  */
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.services.cognitoidentity.AmazonCognitoIdentity;
 import com.amazonaws.services.cognitoidentity.AmazonCognitoIdentityClientBuilder;
 import com.amazonaws.services.cognitoidentity.model.*;
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProvider;
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProviderClientBuilder;
 import com.amazonaws.services.cognitoidp.model.*;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.Bucket;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.net.URL;
+import java.util.*;
 
 
 /**
@@ -75,10 +80,18 @@ class CognitoHelper {
     }
 
     String GetHostedSignInURL() {
-        String customurl = "https://%s.auth.%s.amazoncognito.com/login?response_type=code&client_id=%s&redirect_uri=https://sid343.reinvent-workshop.com/";
+        String customurl = "https://%s.auth.%s.amazoncognito.com/login?response_type=code&client_id=%s&redirect_uri=%s";
 
-        return String.format(customurl, CUSTOMDOMAIN, REGION, CLIENTAPP_ID);
+        return String.format(customurl, CUSTOMDOMAIN, REGION, CLIENTAPP_ID, Constants.REDIRECT_URL);
     }
+
+
+    String GetTokenURL() {
+        String customurl = "https://%s.auth.%s.amazoncognito.com/oauth2/token";
+
+        return String.format(customurl, CUSTOMDOMAIN, REGION);
+    }
+
 
     /**
      * Sign up the user to the user pool
@@ -180,6 +193,49 @@ class CognitoHelper {
     }
 
     /**
+     * Returns the AWS credentials
+     *
+     * @param idprovider the IDP provider for the login map
+     * @param id         the username for the login map.
+     * @return returns the credentials based on the access token returned from the user pool.
+     */
+    Credentials GetCredentials(String accesscode) {
+        Credentials credentials = null;
+
+        try {
+            Map<String, String> httpBodyParams = new HashMap<String, String>();
+            httpBodyParams.put(Constants.TOKEN_GRANT_TYPE,
+                    Constants.TOKEN_GRANT_TYPE_AUTH_CODE);
+            httpBodyParams.put(Constants.DOMAIN_QUERY_PARAM_CLIENT_ID, CLIENTAPP_ID);
+            httpBodyParams.put(Constants.DOMAIN_QUERY_PARAM_REDIRECT_URI, Constants.REDIRECT_URL);
+
+            httpBodyParams.put(Constants.TOKEN_AUTH_TYPE_CODE,
+                    accesscode);
+
+            AuthHttpClient httpClient = new AuthHttpClient();
+
+
+            URL url = new URL(GetTokenURL());
+            String result = httpClient.httpPost(url, httpBodyParams);
+
+            System.out.println(result);
+
+            JSONObject payload = CognitoJWTParser.getPayload(result);
+            String provider = payload.get("iss").toString().replace("https://", "");
+
+            credentials = GetCredentials(provider, result);
+
+            return credentials;
+
+
+        } catch (Exception exp) {
+            System.out.println(exp);
+        }
+        return credentials;
+    }
+
+
+    /**
      * Start reset password procedure by sending reset code
      *
      * @param username user to be reset
@@ -221,5 +277,39 @@ class CognitoHelper {
             // handle exception here
         }
         return confirmPasswordResult.toString();
+    }
+
+
+    /**
+     * This method returns the details of the user and bucket lists.
+     *
+     * @param credentials Credentials to be used for displaying buckets
+     * @return
+     */
+    String ListBucketsForUser(Credentials credentials) {
+
+        BasicSessionCredentials awsCreds = new BasicSessionCredentials(credentials.getAccessKeyId(), credentials.getSecretKey(), credentials.getSessionToken());
+        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+                .build();
+        StringBuilder bucketslist = new StringBuilder();
+
+        bucketslist.append("===========Credentials Details.=========== \n");
+
+        bucketslist.append("Accesskey = " + credentials.getAccessKeyId() + "\n");
+        bucketslist.append("Secret = " + credentials.getSecretKey() + "\n");
+        bucketslist.append("SessionToken = " + credentials.getSessionToken() + "\n");
+
+        bucketslist.append("============Bucket Lists===========\n");
+
+
+        for (Bucket bucket : s3Client.listBuckets()) {
+            bucketslist.append(bucket.getName());
+            bucketslist.append("\n");
+
+            System.out.println(" - " + bucket.getName());
+        }
+        return bucketslist.toString();
+
     }
 }

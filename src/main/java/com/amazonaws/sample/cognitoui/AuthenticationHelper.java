@@ -1,4 +1,4 @@
-package com.amazonaws.sample;
+package com.amazonaws.sample.cognitoui;
 
 /*
  *  Copyright 2013-2016 Amazon.com,
