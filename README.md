@@ -1,4 +1,4 @@
-# PRIVATE-aws-cognito-java-desktop-app
+# aws-cognito-java-desktop-app
 
 This is a sample application which provides a basic implementation of the use of cognito user
 pools using the java SDK.
