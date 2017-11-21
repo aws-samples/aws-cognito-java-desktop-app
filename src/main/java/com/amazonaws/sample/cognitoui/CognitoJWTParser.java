@@ -18,7 +18,9 @@ package com.amazonaws.sample.cognitoui;
  */
 
 
-import com.amazonaws.util.Base64;
+import java.util.Base64;
+import java.util.Base64.Encoder;
+import java.util.Base64.Decoder;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
@@ -42,7 +44,8 @@ public class CognitoJWTParser {
     static JSONObject getHeader(String jwt) {
         try {
             validateJWT(jwt);
-            final byte[] sectionDecoded = Base64.decode(jwt.split("\\.")[HEADER]);
+            Base64.Decoder dec= Base64.getDecoder();
+            final byte[] sectionDecoded = dec.decode(jwt.split("\\.")[HEADER]);
             final String jwtSection = new String(sectionDecoded, "UTF-8");
             return new JSONObject(jwtSection);
         } catch (final UnsupportedEncodingException e) {
@@ -61,13 +64,15 @@ public class CognitoJWTParser {
     static JSONObject getPayload(String jwt) {
         try {
             validateJWT(jwt);
+            Base64.Decoder dec= Base64.getDecoder();
             final String payload = jwt.split("\\.")[PAYLOAD];
-            final byte[] sectionDecoded = Base64.decode(payload);
+            final byte[] sectionDecoded = dec.decode(payload);
             final String jwtSection = new String(sectionDecoded, "UTF-8");
             return new JSONObject(jwtSection);
         } catch (final UnsupportedEncodingException e) {
             throw new InvalidParameterException(e.getMessage());
         } catch (final Exception e) {
+            System.out.println(e);
             throw new InvalidParameterException("error in parsing JSON");
         }
     }
@@ -81,7 +86,8 @@ public class CognitoJWTParser {
     public static String getSignature(String jwt) {
         try {
             validateJWT(jwt);
-            final byte[] sectionDecoded = Base64.decode(jwt.split("\\.")[SIGNATURE]);
+            Base64.Decoder dec= Base64.getDecoder();
+            final byte[] sectionDecoded = dec.decode(jwt.split("\\.")[SIGNATURE]);
             return new String(sectionDecoded, "UTF-8");
         } catch (final Exception e) {
             throw new InvalidParameterException("error in parsing JSON");
