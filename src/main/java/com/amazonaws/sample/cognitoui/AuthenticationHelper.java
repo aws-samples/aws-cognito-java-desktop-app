@@ -176,7 +176,7 @@ class AuthenticationHelper {
     }
 
     /**
-     * Initialize the autheication request for the first time.
+     * Initialize the authentication request for the first time.
      *
      * @param username The user for which the authentication request is created.
      * @return the Authentication request.

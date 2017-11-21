@@ -195,8 +195,7 @@ class CognitoHelper {
     /**
      * Returns the AWS credentials
      *
-     * @param idprovider the IDP provider for the login map
-     * @param id         the username for the login map.
+     * @param accesscode access code
      * @return returns the credentials based on the access token returned from the user pool.
      */
     Credentials GetCredentials(String accesscode) {
