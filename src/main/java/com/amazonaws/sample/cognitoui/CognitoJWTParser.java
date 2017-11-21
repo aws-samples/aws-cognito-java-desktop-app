@@ -72,7 +72,6 @@ public class CognitoJWTParser {
         } catch (final UnsupportedEncodingException e) {
             throw new InvalidParameterException(e.getMessage());
         } catch (final Exception e) {
-            System.out.println(e);
             throw new InvalidParameterException("error in parsing JSON");
         }
     }
