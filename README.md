@@ -10,10 +10,4 @@ This application supports
 4. Getting the AWS credential for the user and displaying the user resource based on the
 AWS credentails. 
 
-To test this application, update the following entries in the CognitoHelper.java
-
-private String POOL_ID= ""; 
-
-private String CLIENTAPP_ID="";
-
-private String FED_POOL_ID="";
+To understand the application, please follow the steps at https://sid343.reinvent-workshop.com/
