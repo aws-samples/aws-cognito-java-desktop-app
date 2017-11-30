@@ -104,39 +104,7 @@ class CognitoHelper {
      * @return whether the call was successful or not.
      */
     boolean SignUpUser(String username, String password, String email, String phonenumber) {
-        AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
-        AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
-                .standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .withRegion(Regions.fromName(REGION))
-                .build();
 
-        SignUpRequest signUpRequest = new SignUpRequest();
-
-        signUpRequest.setClientId(CLIENTAPP_ID);
-        signUpRequest.setUsername(username);
-        signUpRequest.setPassword(password);
-        List<AttributeType> list = new ArrayList<>();
-
-        AttributeType attributeType = new AttributeType();
-        attributeType.setName("phone_number");
-        attributeType.setValue(phonenumber);
-        list.add(attributeType);
-
-        AttributeType attributeType1 = new AttributeType();
-        attributeType1.setName("email");
-        attributeType1.setValue(email);
-        list.add(attributeType1);
-
-        signUpRequest.setUserAttributes(list);
-
-        try {
-            SignUpResult result = cognitoIdentityProvider.signUp(signUpRequest);
-            System.out.println(result);
-        } catch (Exception e) {
-            System.out.println(e);
-            return false;
-        }
         return true;
     }
 
@@ -160,8 +128,8 @@ class CognitoHelper {
      * @return returns the JWT token after the validation
      */
     String ValidateUser(String username, String password) {
-        AuthenticationHelper helper = new AuthenticationHelper(POOL_ID, CLIENTAPP_ID, "");
-        return helper.PerformSRPAuthentication(username, password);
+
+        return "";
     }
 
     /**
@@ -172,6 +140,7 @@ class CognitoHelper {
      * @return returns the credentials based on the access token returned from the user pool.
      */
     Credentials GetCredentials(String idprovider, String id) {
+
         return null;
     }
 
@@ -214,6 +183,7 @@ class CognitoHelper {
      * @return returns code delivery details
      */
     String ResetPassword(String username) {
+
         return null;
     }
 
@@ -226,6 +196,7 @@ class CognitoHelper {
      * @return returns code delivery details
      */
     String UpdatePassword(String username, String newpw, String code) {
+
         return null;
     }
 
