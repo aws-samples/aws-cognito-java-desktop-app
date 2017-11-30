@@ -38,6 +38,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ArrayList;
 
 /**
  * The CognitoHelper class abstracts the functionality of connecting to the Cognito user pool and Federated Identities.
