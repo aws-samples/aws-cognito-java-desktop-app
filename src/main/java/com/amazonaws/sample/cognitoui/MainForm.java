@@ -89,8 +89,8 @@ public class MainForm extends Application {
 
                 ShowUserBuckets(credentails);
             } else {
-                System.out.println("Username / Password is invalid");
-                auth_message.setText("Username / Password is invalid");
+                System.out.println("Username/password is invalid");
+                auth_message.setText("Username/password is invalid");
             }
 
         });

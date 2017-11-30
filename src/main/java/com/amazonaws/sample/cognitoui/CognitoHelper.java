@@ -18,6 +18,7 @@ package com.amazonaws.sample.cognitoui;
  */
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.AnonymousAWSCredentials;
 import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cognitoidentity.AmazonCognitoIdentity;
@@ -99,14 +100,14 @@ class CognitoHelper {
      * @return whether the call was successful or not.
      */
     boolean SignUpUser(String username, String password, String email, String phonenumber) {
-        // AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder.defaultClient();
+        AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
         AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
                 .standard()
+                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
                 .withRegion(Regions.fromName(REGION))
                 .build();
 
         SignUpRequest signUpRequest = new SignUpRequest();
-
         signUpRequest.setClientId(CLIENTAPP_ID);
         signUpRequest.setUsername(username);
         signUpRequest.setPassword(password);
@@ -142,11 +143,13 @@ class CognitoHelper {
      * @return if the verification is successful.
      */
     boolean VerifyAccessCode(String username, String code) {
-        // AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder.defaultClient();
+        AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
         AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
                 .standard()
+                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
                 .withRegion(Regions.fromName(REGION))
                 .build();
+
         ConfirmSignUpRequest confirmSignUpRequest = new ConfirmSignUpRequest();
         confirmSignUpRequest.setUsername(username);
         confirmSignUpRequest.setConfirmationCode(code);
@@ -186,11 +189,13 @@ class CognitoHelper {
      * @return returns the credentials based on the access token returned from the user pool.
      */
     Credentials GetCredentials(String idprovider, String id) {
-        // AmazonCognitoIdentity provider = AmazonCognitoIdentityClientBuilder.defaultClient();
+        AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
         AmazonCognitoIdentity provider = AmazonCognitoIdentityClientBuilder
                 .standard()
+                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
                 .withRegion(Regions.fromName(REGION))
                 .build();
+
         GetIdRequest idrequest = new GetIdRequest();
         idrequest.setIdentityPoolId(FED_POOL_ID);
         idrequest.addLoginsEntry(idprovider, id);
@@ -230,14 +235,11 @@ class CognitoHelper {
             credentials = GetCredentials(provider, result);
 
             return credentials;
-
-
         } catch (Exception exp) {
             System.out.println(exp);
         }
         return credentials;
     }
-
 
     /**
      * Start reset password procedure by sending reset code
@@ -246,9 +248,10 @@ class CognitoHelper {
      * @return returns code delivery details
      */
     String ResetPassword(String username) {
-        // AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder.defaultClient();
+        AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
         AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
                 .standard()
+                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
                 .withRegion(Regions.fromName(REGION))
                 .build();
 
@@ -256,6 +259,7 @@ class CognitoHelper {
         forgotPasswordRequest.setUsername(username);
         forgotPasswordRequest.setClientId(CLIENTAPP_ID);
         ForgotPasswordResult forgotPasswordResult = new ForgotPasswordResult();
+
         try {
             forgotPasswordResult = cognitoIdentityProvider.forgotPassword(forgotPasswordRequest);
         } catch (Exception e) {
@@ -273,9 +277,10 @@ class CognitoHelper {
      * @return returns code delivery details
      */
     String UpdatePassword(String username, String newpw, String code) {
-        // AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder.defaultClient();
+        AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
         AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
                 .standard()
+                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
                 .withRegion(Regions.fromName(REGION))
                 .build();
 
@@ -322,6 +327,5 @@ class CognitoHelper {
             System.out.println(" - " + bucket.getName());
         }
         return bucketslist.toString();
-
     }
 }

@@ -18,6 +18,9 @@ package com.amazonaws.sample.cognitoui;
  */
 
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.AnonymousAWSCredentials;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProvider;
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProviderClientBuilder;
 import com.amazonaws.services.cognitoidp.model.*;
@@ -28,6 +31,8 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
@@ -93,6 +98,7 @@ class AuthenticationHelper {
     private String userPoolID;
     private String clientId;
     private String secretKey;
+    private String region;
 
     AuthenticationHelper(String userPoolID, String clientid, String secretKey) {
         do {
@@ -102,7 +108,32 @@ class AuthenticationHelper {
 
         this.userPoolID = userPoolID;
         this.clientId = clientid;
+        this.region = region;
         this.secretKey = secretKey;
+
+        Properties prop = new Properties();
+        InputStream input = null;
+
+        try {
+            input = getClass().getClassLoader().getResourceAsStream("config.properties");
+
+            // load a properties file
+            prop.load(input);
+
+            // Read the property values
+            this.region = prop.getProperty("REGION");
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     private BigInteger getA() {
@@ -159,7 +190,12 @@ class AuthenticationHelper {
 
         InitiateAuthRequest initiateAuthRequest = initiateUserSrpAuthRequest(username);
         try {
-            AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder.defaultClient();
+            AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
+            AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
+                    .standard()
+                    .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+                    .withRegion(Regions.fromName(this.region))
+                    .build();
             InitiateAuthResult initiateAuthResult = cognitoIdentityProvider.initiateAuth(initiateAuthRequest);
             if (ChallengeNameType.PASSWORD_VERIFIER.toString().equals(initiateAuthResult.getChallengeName())) {
                 RespondToAuthChallengeRequest challengeRequest = userSrpAuthRequest(initiateAuthResult, password);
