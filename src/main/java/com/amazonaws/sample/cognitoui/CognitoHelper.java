@@ -18,15 +18,9 @@ package com.amazonaws.sample.cognitoui;
  */
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.AnonymousAWSCredentials;
 import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.cognitoidentity.AmazonCognitoIdentity;
-import com.amazonaws.services.cognitoidentity.AmazonCognitoIdentityClientBuilder;
-import com.amazonaws.services.cognitoidentity.model.*;
-import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProvider;
-import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProviderClientBuilder;
-import com.amazonaws.services.cognitoidp.model.*;
+import com.amazonaws.services.cognitoidentity.model.Credentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
@@ -35,7 +29,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * The CognitoHelper class abstracts the functionality of connecting to the Cognito user pool and Federated Identities.
@@ -100,38 +96,7 @@ class CognitoHelper {
      * @return whether the call was successful or not.
      */
     boolean SignUpUser(String username, String password, String email, String phonenumber) {
-        AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
-        AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
-                .standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .withRegion(Regions.fromName(REGION))
-                .build();
 
-        SignUpRequest signUpRequest = new SignUpRequest();
-        signUpRequest.setClientId(CLIENTAPP_ID);
-        signUpRequest.setUsername(username);
-        signUpRequest.setPassword(password);
-        List<AttributeType> list = new ArrayList<>();
-
-        AttributeType attributeType = new AttributeType();
-        attributeType.setName("phone_number");
-        attributeType.setValue(phonenumber);
-        list.add(attributeType);
-
-        AttributeType attributeType1 = new AttributeType();
-        attributeType1.setName("email");
-        attributeType1.setValue(email);
-        list.add(attributeType1);
-
-        signUpRequest.setUserAttributes(list);
-
-        try {
-            SignUpResult result = cognitoIdentityProvider.signUp(signUpRequest);
-            System.out.println(result);
-        } catch (Exception e) {
-            System.out.println(e);
-            return false;
-        }
         return true;
     }
 
@@ -143,29 +108,7 @@ class CognitoHelper {
      * @return if the verification is successful.
      */
     boolean VerifyAccessCode(String username, String code) {
-        AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
-        AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
-                .standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .withRegion(Regions.fromName(REGION))
-                .build();
 
-        ConfirmSignUpRequest confirmSignUpRequest = new ConfirmSignUpRequest();
-        confirmSignUpRequest.setUsername(username);
-        confirmSignUpRequest.setConfirmationCode(code);
-        confirmSignUpRequest.setClientId(CLIENTAPP_ID);
-
-        System.out.println("username=" + username);
-        System.out.println("code=" + code);
-        System.out.println("clientid=" + CLIENTAPP_ID);
-
-        try {
-            ConfirmSignUpResult confirmSignUpResult = cognitoIdentityProvider.confirmSignUp(confirmSignUpRequest);
-            System.out.println("confirmSignupResult=" + confirmSignUpResult.toString());
-        } catch (Exception ex) {
-            System.out.println(ex);
-            return false;
-        }
         return true;
     }
 
@@ -189,24 +132,7 @@ class CognitoHelper {
      * @return returns the credentials based on the access token returned from the user pool.
      */
     Credentials GetCredentials(String idprovider, String id) {
-        AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
-        AmazonCognitoIdentity provider = AmazonCognitoIdentityClientBuilder
-                .standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .withRegion(Regions.fromName(REGION))
-                .build();
-
-        GetIdRequest idrequest = new GetIdRequest();
-        idrequest.setIdentityPoolId(FED_POOL_ID);
-        idrequest.addLoginsEntry(idprovider, id);
-        GetIdResult idResult = provider.getId(idrequest);
-
-        GetCredentialsForIdentityRequest request = new GetCredentialsForIdentityRequest();
-        request.setIdentityId(idResult.getIdentityId());
-        request.addLoginsEntry(idprovider, id);
-
-        GetCredentialsForIdentityResult result = provider.getCredentialsForIdentity(request);
-        return result.getCredentials();
+        return null;
     }
 
     /**
@@ -248,24 +174,7 @@ class CognitoHelper {
      * @return returns code delivery details
      */
     String ResetPassword(String username) {
-        AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
-        AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
-                .standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .withRegion(Regions.fromName(REGION))
-                .build();
-
-        ForgotPasswordRequest forgotPasswordRequest = new ForgotPasswordRequest();
-        forgotPasswordRequest.setUsername(username);
-        forgotPasswordRequest.setClientId(CLIENTAPP_ID);
-        ForgotPasswordResult forgotPasswordResult = new ForgotPasswordResult();
-
-        try {
-            forgotPasswordResult = cognitoIdentityProvider.forgotPassword(forgotPasswordRequest);
-        } catch (Exception e) {
-            // handle exception here
-        }
-        return forgotPasswordResult.toString();
+        return null;
     }
 
     /**
@@ -277,26 +186,7 @@ class CognitoHelper {
      * @return returns code delivery details
      */
     String UpdatePassword(String username, String newpw, String code) {
-        AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
-        AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
-                .standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .withRegion(Regions.fromName(REGION))
-                .build();
-
-        ConfirmForgotPasswordRequest confirmPasswordRequest = new ConfirmForgotPasswordRequest();
-        confirmPasswordRequest.setUsername(username);
-        confirmPasswordRequest.setPassword(newpw);
-        confirmPasswordRequest.setConfirmationCode(code);
-        confirmPasswordRequest.setClientId(CLIENTAPP_ID);
-        ConfirmForgotPasswordResult confirmPasswordResult = new ConfirmForgotPasswordResult();
-
-        try {
-            confirmPasswordResult = cognitoIdentityProvider.confirmForgotPassword(confirmPasswordRequest);
-        } catch (Exception e) {
-            // handle exception here
-        }
-        return confirmPasswordResult.toString();
+        return null;
     }
 
 
