@@ -19,6 +19,7 @@ package com.amazonaws.sample.cognitoui;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicSessionCredentials;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cognitoidentity.AmazonCognitoIdentity;
 import com.amazonaws.services.cognitoidentity.AmazonCognitoIdentityClientBuilder;
 import com.amazonaws.services.cognitoidentity.model.*;
@@ -35,12 +36,10 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
 
-
 /**
  * The CognitoHelper class abstracts the functionality of connecting to the Cognito user pool and Federated Identities.
  */
 class CognitoHelper {
-
     private String POOL_ID;
     private String CLIENTAPP_ID;
     private String FED_POOL_ID;
@@ -53,7 +52,6 @@ class CognitoHelper {
         InputStream input = null;
 
         try {
-
             input = getClass().getClassLoader().getResourceAsStream("config.properties");
 
             // load a properties file
@@ -85,13 +83,11 @@ class CognitoHelper {
         return String.format(customurl, CUSTOMDOMAIN, REGION, CLIENTAPP_ID, Constants.REDIRECT_URL);
     }
 
-
     String GetTokenURL() {
         String customurl = "https://%s.auth.%s.amazoncognito.com/oauth2/token";
 
         return String.format(customurl, CUSTOMDOMAIN, REGION);
     }
-
 
     /**
      * Sign up the user to the user pool
@@ -103,7 +99,11 @@ class CognitoHelper {
      * @return whether the call was successful or not.
      */
     boolean SignUpUser(String username, String password, String email, String phonenumber) {
-        AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder.defaultClient();
+        // AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder.defaultClient();
+        AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
+                .standard()
+                .withRegion(Regions.fromName(REGION))
+                .build();
 
         SignUpRequest signUpRequest = new SignUpRequest();
 
@@ -142,15 +142,23 @@ class CognitoHelper {
      * @return if the verification is successful.
      */
     boolean VerifyAccessCode(String username, String code) {
-        AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder.defaultClient();
+        // AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder.defaultClient();
+        AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
+                .standard()
+                .withRegion(Regions.fromName(REGION))
+                .build();
         ConfirmSignUpRequest confirmSignUpRequest = new ConfirmSignUpRequest();
         confirmSignUpRequest.setUsername(username);
         confirmSignUpRequest.setConfirmationCode(code);
         confirmSignUpRequest.setClientId(CLIENTAPP_ID);
 
+        System.out.println("username=" + username);
+        System.out.println("code=" + code);
+        System.out.println("clientid=" + CLIENTAPP_ID);
+
         try {
             ConfirmSignUpResult confirmSignUpResult = cognitoIdentityProvider.confirmSignUp(confirmSignUpRequest);
-            System.out.println(confirmSignUpResult.toString());
+            System.out.println("confirmSignupResult=" + confirmSignUpResult.toString());
         } catch (Exception ex) {
             System.out.println(ex);
             return false;
@@ -178,7 +186,11 @@ class CognitoHelper {
      * @return returns the credentials based on the access token returned from the user pool.
      */
     Credentials GetCredentials(String idprovider, String id) {
-        AmazonCognitoIdentity provider = AmazonCognitoIdentityClientBuilder.defaultClient();
+        // AmazonCognitoIdentity provider = AmazonCognitoIdentityClientBuilder.defaultClient();
+        AmazonCognitoIdentity provider = AmazonCognitoIdentityClientBuilder
+                .standard()
+                .withRegion(Regions.fromName(REGION))
+                .build();
         GetIdRequest idrequest = new GetIdRequest();
         idrequest.setIdentityPoolId(FED_POOL_ID);
         idrequest.addLoginsEntry(idprovider, id);
@@ -203,25 +215,18 @@ class CognitoHelper {
 
         try {
             Map<String, String> httpBodyParams = new HashMap<String, String>();
-            httpBodyParams.put(Constants.TOKEN_GRANT_TYPE,
-                    Constants.TOKEN_GRANT_TYPE_AUTH_CODE);
+            httpBodyParams.put(Constants.TOKEN_GRANT_TYPE, Constants.TOKEN_GRANT_TYPE_AUTH_CODE);
             httpBodyParams.put(Constants.DOMAIN_QUERY_PARAM_CLIENT_ID, CLIENTAPP_ID);
             httpBodyParams.put(Constants.DOMAIN_QUERY_PARAM_REDIRECT_URI, Constants.REDIRECT_URL);
-
-            httpBodyParams.put(Constants.TOKEN_AUTH_TYPE_CODE,
-                    accesscode);
+            httpBodyParams.put(Constants.TOKEN_AUTH_TYPE_CODE, accesscode);
 
             AuthHttpClient httpClient = new AuthHttpClient();
-
-
             URL url = new URL(GetTokenURL());
             String result = httpClient.httpPost(url, httpBodyParams);
-
             System.out.println(result);
 
             JSONObject payload = CognitoJWTParser.getPayload(result);
             String provider = payload.get("iss").toString().replace("https://", "");
-
             credentials = GetCredentials(provider, result);
 
             return credentials;
@@ -241,7 +246,12 @@ class CognitoHelper {
      * @return returns code delivery details
      */
     String ResetPassword(String username) {
-        AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder.defaultClient();
+        // AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder.defaultClient();
+        AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
+                .standard()
+                .withRegion(Regions.fromName(REGION))
+                .build();
+
         ForgotPasswordRequest forgotPasswordRequest = new ForgotPasswordRequest();
         forgotPasswordRequest.setUsername(username);
         forgotPasswordRequest.setClientId(CLIENTAPP_ID);
@@ -263,13 +273,19 @@ class CognitoHelper {
      * @return returns code delivery details
      */
     String UpdatePassword(String username, String newpw, String code) {
-        AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder.defaultClient();
+        // AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder.defaultClient();
+        AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
+                .standard()
+                .withRegion(Regions.fromName(REGION))
+                .build();
+
         ConfirmForgotPasswordRequest confirmPasswordRequest = new ConfirmForgotPasswordRequest();
         confirmPasswordRequest.setUsername(username);
         confirmPasswordRequest.setPassword(newpw);
         confirmPasswordRequest.setConfirmationCode(code);
         confirmPasswordRequest.setClientId(CLIENTAPP_ID);
         ConfirmForgotPasswordResult confirmPasswordResult = new ConfirmForgotPasswordResult();
+
         try {
             confirmPasswordResult = cognitoIdentityProvider.confirmForgotPassword(confirmPasswordRequest);
         } catch (Exception e) {
@@ -286,21 +302,18 @@ class CognitoHelper {
      * @return
      */
     String ListBucketsForUser(Credentials credentials) {
-
         BasicSessionCredentials awsCreds = new BasicSessionCredentials(credentials.getAccessKeyId(), credentials.getSecretKey(), credentials.getSessionToken());
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+                .withRegion(Regions.fromName(REGION))
                 .build();
         StringBuilder bucketslist = new StringBuilder();
 
         bucketslist.append("===========Credentials Details.=========== \n");
-
         bucketslist.append("Accesskey = " + credentials.getAccessKeyId() + "\n");
         bucketslist.append("Secret = " + credentials.getSecretKey() + "\n");
         bucketslist.append("SessionToken = " + credentials.getSessionToken() + "\n");
-
         bucketslist.append("============Bucket Lists===========\n");
-
 
         for (Bucket bucket : s3Client.listBuckets()) {
             bucketslist.append(bucket.getName());

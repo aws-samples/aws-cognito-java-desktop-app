@@ -90,11 +90,11 @@ public class ConfirmBox {
             boolean success = helper.SignUpUser(Username.getText(), Password.getText(), email.getText(), phno.getText());
             if (success) {
 
-                System.out.println("Enter your validation code on phone: ");
+                System.out.println("Enter your validation code from email");
                 ConfirmUser.display("re:Invent 2017 - Cognito Workshop", "Confirm User",Username.getText());
             } else {
-                System.out.println("User Creation Failed");
-                usercreation_message.setText("User Creation Failed");
+                System.out.println("User creation failed");
+                usercreation_message.setText("User creation failed");
             }
 //            window.close();
         });
