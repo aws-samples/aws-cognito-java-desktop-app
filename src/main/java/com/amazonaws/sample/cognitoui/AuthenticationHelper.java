@@ -1,7 +1,7 @@
 package com.amazonaws.sample.cognitoui;
 
 /*
-// Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2013-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
  */
 
