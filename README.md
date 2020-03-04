@@ -10,4 +10,4 @@ This application supports
 4. Getting the AWS credential for the user and displaying the user resource based on the
 AWS credentails. 
 
-To understand the application, please follow the steps at https://sid343.reinvent-workshop.com/
+To understand the application, please follow the steps at http://sid343.reinvent-workshop.com/
