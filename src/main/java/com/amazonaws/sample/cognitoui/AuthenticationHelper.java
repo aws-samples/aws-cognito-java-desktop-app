@@ -186,7 +186,8 @@ class AuthenticationHelper {
                     .build();
             InitiateAuthResult initiateAuthResult = cognitoIdentityProvider.initiateAuth(initiateAuthRequest);
             if (ChallengeNameType.PASSWORD_VERIFIER.toString().equals(initiateAuthResult.getChallengeName())) {
-                RespondToAuthChallengeRequest challengeRequest = userSrpAuthRequest(initiateAuthResult, password);
+                RespondToAuthChallengeRequest challengeRequest = userSrpAuthRequest(initiateAuthResult, password,
+                        initiateAuthRequest.getAuthParameters().get("SECRET_HASH"));
                 RespondToAuthChallengeResult result = cognitoIdentityProvider.respondToAuthChallenge(challengeRequest);
                 //System.out.println(result);
                 System.out.println(CognitoJWTParser.getPayload(result.getAuthenticationResult().getIdToken()));
@@ -211,7 +212,9 @@ class AuthenticationHelper {
         initiateAuthRequest.setAuthFlow(AuthFlowType.USER_SRP_AUTH);
         initiateAuthRequest.setClientId(this.clientId);
         //Only to be used if the pool contains the secret key.
-        //initiateAuthRequest.addAuthParametersEntry("SECRET_HASH", this.calculateSecretHash(this.clientId,this.secretKey,username));
+        if (secretKey != null && !secretKey.isEmpty()) {
+            initiateAuthRequest.addAuthParametersEntry("SECRET_HASH", calculateSecretHash(clientId, secretKey, username));
+        }
         initiateAuthRequest.addAuthParametersEntry("USERNAME", username);
         initiateAuthRequest.addAuthParametersEntry("SRP_A", this.getA().toString(16));
         return initiateAuthRequest;
@@ -226,7 +229,7 @@ class AuthenticationHelper {
      * @return the Request created for the previous authentication challenge.
      */
     private RespondToAuthChallengeRequest userSrpAuthRequest(InitiateAuthResult challenge,
-                                                             String password
+                                                             String password, String secretHash
     ) {
         String userIdForSRP = challenge.getChallengeParameters().get("USER_ID_FOR_SRP");
         String usernameInternal = challenge.getChallengeParameters().get("USERNAME");
@@ -266,6 +269,9 @@ class AuthenticationHelper {
         srpAuthResponses.put("PASSWORD_CLAIM_SIGNATURE", new String(Base64.encode(hmac), StringUtils.UTF8));
         srpAuthResponses.put("TIMESTAMP", formatTimestamp.format(timestamp));
         srpAuthResponses.put("USERNAME", usernameInternal);
+        if (secretHash != null && !secretHash.isEmpty()) {
+            srpAuthResponses.put("SECRET_HASH", secretHash);
+        }
 
         RespondToAuthChallengeRequest authChallengeRequest = new RespondToAuthChallengeRequest();
         authChallengeRequest.setChallengeName(challenge.getChallengeName());

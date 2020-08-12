@@ -31,6 +31,7 @@ import java.util.*;
 class CognitoHelper {
     private String POOL_ID;
     private String CLIENTAPP_ID;
+    private String CLIENT_SECRET;
     private String FED_POOL_ID;
     private String CUSTOMDOMAIN;
     private String REGION;
@@ -49,6 +50,7 @@ class CognitoHelper {
             // Read the property values
             POOL_ID = prop.getProperty("POOL_ID");
             CLIENTAPP_ID = prop.getProperty("CLIENTAPP_ID");
+            CLIENT_SECRET = prop.getProperty("CLIENT_SECRET");
             FED_POOL_ID = prop.getProperty("FED_POOL_ID");
             CUSTOMDOMAIN = prop.getProperty("CUSTOMDOMAIN");
             REGION = prop.getProperty("REGION");
@@ -165,7 +167,7 @@ class CognitoHelper {
      * @return returns the JWT token after the validation
      */
     String ValidateUser(String username, String password) {
-        AuthenticationHelper helper = new AuthenticationHelper(POOL_ID, CLIENTAPP_ID, "");
+        AuthenticationHelper helper = new AuthenticationHelper(POOL_ID, CLIENTAPP_ID, CLIENT_SECRET);
         return helper.PerformSRPAuthentication(username, password);
     }
 
